@@ -1,0 +1,8 @@
+(fp_lib_table
+  (lib (name "esp32s3")(type "KiCad")(uri "${KIPRJMOD}/libs/ESP32-S3-WROOM-1-N8R8")(options "")(descr ""))
+  (lib (name "drv8210DRLR")(type "KiCad")(uri "${KIPRJMOD}/libs/DRV8210DRLR")(options "")(descr ""))
+  (lib (name "TS393IYDT")(type "KiCad")(uri "${KIPRJMOD}/libs/TS393IYDT")(options "")(descr ""))
+  (lib (name "TOFVL53L0X")(type "KiCad")(uri "${KIPRJMOD}/libs/TOFVL53L0X.pretty")(options "")(descr ""))
+  (lib (name "B3U-1000P")(type "KiCad")(uri "${KIPRJMOD}/libs/B3U-1000P")(options "")(descr ""))
+  (lib (name "logo")(type "KiCad")(uri "${KIPRJMOD}/libs/logo")(options "")(descr ""))
+)

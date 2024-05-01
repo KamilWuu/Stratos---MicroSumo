@@ -1,0 +1,3 @@
+(fp_lib_table
+  (lib (name "MH-MINI-360")(type "KiCad")(uri "${KIPRJMOD}/MH-MINI-360.pretty")(options "")(descr ""))
+)
