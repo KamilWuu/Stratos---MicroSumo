@@ -517,7 +517,7 @@
       "plot": "../../../../Desktop/Stratos_v3/",
       "pos_files": "",
       "specctra_dsn": "",
-      "step": "../../../Desktop/MikroSumo.step",
+      "step": "../mechanics/MikroSumo.step",
       "svg": "",
       "vrml": ""
     },

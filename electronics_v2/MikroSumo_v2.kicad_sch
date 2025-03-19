@@ -49,16 +49,7 @@
 					(hide yes)
 				)
 			)
-			(property "Description" ""
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "MF" "Omron"
+			(property "Description" "Tactile Switch SPST-NO Top Actuated Surface Mount"
 				(at 0 0 0)
 				(effects
 					(font
@@ -68,7 +59,7 @@
 					(hide yes)
 				)
 			)
-			(property "DESCRIPTION" "Tactile Switch SPST-NO Top Actuated Surface Mount"
+			(property "MF" "Omron"
 				(at 0 0 0)
 				(effects
 					(font
@@ -3259,16 +3250,7 @@
 					(hide yes)
 				)
 			)
-			(property "Description" ""
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "MF" "Espressif Systems"
+			(property "Description" "Bluetooth, WiFi 802.11b/g/n, Bluetooth v5.0 Transceiver Module 2.4GHz PCB Trace Surface Mount"
 				(at 0 0 0)
 				(effects
 					(font
@@ -3278,7 +3260,7 @@
 					(hide yes)
 				)
 			)
-			(property "DESCRIPTION" "Bluetooth, WiFi 802.11b/g/n, Bluetooth v5.0 Transceiver Module 2.4GHz PCB Trace Surface Mount"
+			(property "MF" "Espressif Systems"
 				(at 0 0 0)
 				(effects
 					(font
@@ -4973,6 +4955,16 @@
 	)
 	(wire
 		(pts
+			(xy 405.13 25.908) (xy 405.13 30.226)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "470f72d5-c21f-4313-b57f-1dc86eed2c20")
+	)
+	(wire
+		(pts
 			(xy 52.07 130.81) (xy 54.61 130.81)
 		)
 		(stroke
@@ -5703,6 +5695,16 @@
 	)
 	(wire
 		(pts
+			(xy 405.13 18.288) (xy 405.13 14.478)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "deeb4f81-2328-4732-9bac-51832d848f8c")
+	)
+	(wire
+		(pts
 			(xy 324.358 19.05) (xy 328.168 19.05)
 		)
 		(stroke
@@ -5900,6 +5902,16 @@
 			(type default)
 		)
 		(uuid "f9fae294-ce86-44df-87dd-d76c0e43cd0b")
+	)
+	(wire
+		(pts
+			(xy 405.13 3.81) (xy 405.13 6.858)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "fbdebcf3-f183-46ae-81de-35e73d8e4bb3")
 	)
 	(wire
 		(pts
@@ -7398,6 +7410,76 @@
 		)
 	)
 	(symbol
+		(lib_id "Device:LED")
+		(at 405.13 22.098 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "0ae3492f-6c0e-4adf-80bc-b6961cdab486")
+		(property "Reference" "V_BAT1"
+			(at 408.94 22.4154 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Value" "LED"
+			(at 408.94 24.9554 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" "LED_SMD:LED_0603_1608Metric"
+			(at 405.13 22.098 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 405.13 22.098 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 405.13 22.098 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "573a4bea-b9de-4524-8597-53aee53bd85d")
+		)
+		(pin "2"
+			(uuid "c66b04fd-7543-4c99-9ce5-213cabe27ac8")
+		)
+		(instances
+			(project "MikroSumo_v2"
+				(path "/d275f56a-2bbd-4499-9b03-6bf61ae14034"
+					(reference "V_BAT1")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "power:+3.3V")
 		(at 340.614 185.674 0)
 		(unit 1)
@@ -7937,6 +8019,72 @@
 	)
 	(symbol
 		(lib_id "power:GND")
+		(at 405.13 30.226 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "1d7dee1d-acb5-4e05-8b04-29847b8d70d4")
+		(property "Reference" "#PWR050"
+			(at 405.13 36.576 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 405.13 35.56 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 405.13 30.226 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 405.13 30.226 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 405.13 30.226 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "6d38d020-cf72-4b4b-b1ed-1632aef0576b")
+		)
+		(instances
+			(project "MikroSumo_v2"
+				(path "/d275f56a-2bbd-4499-9b03-6bf61ae14034"
+					(reference "#PWR050")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
 		(at 73.406 163.322 0)
 		(unit 1)
 		(exclude_from_sim no)
@@ -8248,16 +8396,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
-			(at 331.724 113.284 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "MF" "Texas Instruments"
+		(property "Description" "\n12-V, 1.76-A H-bridge motor driver with auto sleep mode\n"
 			(at 331.724 113.284 0)
 			(effects
 				(font
@@ -8267,7 +8406,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "\n12-V, 1.76-A H-bridge motor driver with auto sleep mode\n"
+		(property "MF" "Texas Instruments"
 			(at 331.724 113.284 0)
 			(effects
 				(font
@@ -8637,12 +8776,13 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "\nSWITCH;TACTILE,TOP ACTUATED,TACTILE & JOG SWITCHES W/O BOSS W/O GROUND | Omron Electronic Components B3U-1000P\n"
 			(at 87.122 151.13 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify bottom)
 				(hide yes)
 			)
 		)
@@ -8757,16 +8897,6 @@
 			)
 		)
 		(property "AVAILABILITY" "Unavailable"
-			(at 87.122 151.13 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify bottom)
-				(hide yes)
-			)
-		)
-		(property "Description" "\nSWITCH;TACTILE,TOP ACTUATED,TACTILE & JOG SWITCHES W/O BOSS W/O GROUND | Omron Electronic Components B3U-1000P\n"
 			(at 87.122 151.13 0)
 			(effects
 				(font
@@ -9457,12 +9587,13 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "\nSWITCH;TACTILE,TOP ACTUATED,TACTILE & JOG SWITCHES W/O BOSS W/O GROUND | Omron Electronic Components B3U-1000P\n"
 			(at 87.122 125.222 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify bottom)
 				(hide yes)
 			)
 		)
@@ -9577,16 +9708,6 @@
 			)
 		)
 		(property "AVAILABILITY" "Unavailable"
-			(at 87.122 125.222 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify bottom)
-				(hide yes)
-			)
-		)
-		(property "Description" "\nSWITCH;TACTILE,TOP ACTUATED,TACTILE & JOG SWITCHES W/O BOSS W/O GROUND | Omron Electronic Components B3U-1000P\n"
 			(at 87.122 125.222 0)
 			(effects
 				(font
@@ -10772,6 +10893,76 @@
 			(project "MikroSumo_v2"
 				(path "/d275f56a-2bbd-4499-9b03-6bf61ae14034"
 					(reference "R4")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 405.13 10.668 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "6ee19f23-1878-4edc-8ebf-2686f6256d7c")
+		(property "Reference" "R16"
+			(at 406.908 9.3979 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "2K"
+			(at 406.908 11.9379 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
+			(at 403.352 10.668 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 405.13 10.668 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 405.13 10.668 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "22f54290-7a8d-4131-a227-17952297fe24")
+		)
+		(pin "2"
+			(uuid "e5c0eefd-1c4f-4c65-b6e5-52c93a6aae2e")
+		)
+		(instances
+			(project "MikroSumo_v2"
+				(path "/d275f56a-2bbd-4499-9b03-6bf61ae14034"
+					(reference "R16")
 					(unit 1)
 				)
 			)
@@ -11966,16 +12157,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
-			(at 330.454 83.058 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "MF" "Texas Instruments"
+		(property "Description" "\n12-V, 1.76-A H-bridge motor driver with auto sleep mode\n"
 			(at 330.454 83.058 0)
 			(effects
 				(font
@@ -11985,7 +12167,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "\n12-V, 1.76-A H-bridge motor driver with auto sleep mode\n"
+		(property "MF" "Texas Instruments"
 			(at 330.454 83.058 0)
 			(effects
 				(font
@@ -12279,12 +12461,13 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "\nBluetooth, WiFi 802.11b/g/n, Bluetooth v5.0 Transceiver Module 2.4GHz PCB Trace Surface Mount\n"
 			(at 39.37 159.766 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify bottom)
 				(hide yes)
 			)
 		)
@@ -12379,16 +12562,6 @@
 			)
 		)
 		(property "Purchase-URL" "https://www.snapeda.com/api/url_track_click_mouser/?unipart_id=8936581&manufacturer=Espressif Systems&part_name=ESP32-S3-WROOM-1-N8R8&search_term=esp32 s3"
-			(at 39.37 159.766 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify bottom)
-				(hide yes)
-			)
-		)
-		(property "Description" "\nBluetooth, WiFi 802.11b/g/n, Bluetooth v5.0 Transceiver Module 2.4GHz PCB Trace Surface Mount\n"
 			(at 39.37 159.766 0)
 			(effects
 				(font
@@ -13042,12 +13215,13 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "\nSWITCH;TACTILE,TOP ACTUATED,TACTILE & JOG SWITCHES W/O BOSS W/O GROUND | Omron Electronic Components B3U-1000P\n"
 			(at 336.296 39.624 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify bottom)
 				(hide yes)
 			)
 		)
@@ -13162,16 +13336,6 @@
 			)
 		)
 		(property "AVAILABILITY" "Unavailable"
-			(at 336.296 39.624 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify bottom)
-				(hide yes)
-			)
-		)
-		(property "Description" "\nSWITCH;TACTILE,TOP ACTUATED,TACTILE & JOG SWITCHES W/O BOSS W/O GROUND | Omron Electronic Components B3U-1000P\n"
 			(at 336.296 39.624 0)
 			(effects
 				(font
@@ -13575,12 +13739,13 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "\nSWITCH;TACTILE,TOP ACTUATED,TACTILE & JOG SWITCHES W/O BOSS W/O GROUND | Omron Electronic Components B3U-1000P\n"
 			(at 335.788 19.05 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify bottom)
 				(hide yes)
 			)
 		)
@@ -13704,16 +13869,6 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "\nSWITCH;TACTILE,TOP ACTUATED,TACTILE & JOG SWITCHES W/O BOSS W/O GROUND | Omron Electronic Components B3U-1000P\n"
-			(at 335.788 19.05 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify bottom)
-				(hide yes)
-			)
-		)
 		(pin "1"
 			(uuid "af17c694-a5a7-423c-8133-c8ebb3171a65")
 		)
@@ -13794,6 +13949,72 @@
 			(project "MikroSumo_v2"
 				(path "/d275f56a-2bbd-4499-9b03-6bf61ae14034"
 					(reference "J3")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:VCC")
+		(at 405.13 3.81 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "c57d552c-dd1a-4f6c-8c24-3cd3d826d1cb")
+		(property "Reference" "#PWR051"
+			(at 405.13 7.62 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "VCC"
+			(at 405.13 -1.016 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 405.13 3.81 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 405.13 3.81 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 405.13 3.81 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "9cfa5320-ef1c-426f-8169-a62f74c5479b")
+		)
+		(instances
+			(project "MikroSumo_v2"
+				(path "/d275f56a-2bbd-4499-9b03-6bf61ae14034"
+					(reference "#PWR051")
 					(unit 1)
 				)
 			)
