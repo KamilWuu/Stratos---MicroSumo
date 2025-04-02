@@ -389,7 +389,9 @@ void Robot::updateMotors() {
 
 bool Robot::blackOnDojo(){
 
-  if(ground_sensors.white_on_left || ground_sensors.white_on_right){
+  if(!ground_sensors.white_on_left || !ground_sensors.white_on_right){
+    return true;
+  }else{
     return false;
   }
 
