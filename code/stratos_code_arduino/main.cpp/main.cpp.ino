@@ -15,8 +15,8 @@
 #define L_MOT_FORW 7  //LEFT_MOTOR_FORWARD
 #define L_MOT_BACK 6  //LEFT_MOTOR_BACKWARD
 
-#define R_MOT_FORW 41  //RIGHT_MOTOR_FORWARD
-#define R_MOT_BACK 40  //RIGHT_MOTOR_BACKWARD
+#define R_MOT_FORW 40  //RIGHT_MOTOR_FORWARD
+#define R_MOT_BACK 41  //RIGHT_MOTOR_BACKWARD
 
 #define LEFT_SERVO 39
 //#define RIGHT_SERVO 8
@@ -36,6 +36,13 @@
 
 //VARIABLES
 #define GROUND_THRESHOLD 2000
+#define START_ROT_TIME 1000
+
+#define min_pwm 0      // Minimalna wartość PWM, żeby silniki się obracały
+#define max_pwm 200     // Maksymalna wartość PWM
+#define threshold_detect_distance 100  // Odległość wykrycia przeciwnika (mm)
+#define threshold_near_distance 10    // Bardzo bliska odległość (mm)
+
 
 void initGPIO() {
   // Konfiguracja wyjść cyfrowych
@@ -213,6 +220,8 @@ public:
   bool get_start_rot_state(){return start_rot_state;};
   bool get_start_tactic_state(){return start_tactic_state;};
   void updateMotors();
+  bool isOponnentFound();
+  bool blackOnDojo();
   DistanceSensors tofs;          // Obiekt czujników odległości
   GroundSensors ground_sensors;  // Obiekt czujników podłoża
 private:
@@ -307,50 +316,69 @@ void ledWaveEffect() {
 
 
 
-#define min_pwm 0      // Minimalna wartość PWM, żeby silniki się obracały
-#define max_pwm 255     // Maksymalna wartość PWM
-#define threshold_detect_distance 300  // Odległość wykrycia przeciwnika (mm)
-#define threshold_near_distance 10    // Bardzo bliska odległość (mm)
+
+bool Robot::isOponnentFound(){
+  readSensors();
+  uint16_t L_dist = tofs.getLeftDistance();
+  uint16_t R_dist = tofs.getRightDistance();
+  if (L_dist < threshold_detect_distance || R_dist < threshold_detect_distance) {
+    return true;
+
+  }else{
+    return false;
+  }
+}
 
 void Robot::updateMotors() {
+    //readSensors();
+    bool oponnent_found = false;
     uint16_t L_pwm = 0;
     uint16_t R_pwm = 0;
     uint16_t L_dist = tofs.getLeftDistance();
     uint16_t R_dist = tofs.getRightDistance();
-    if (L_dist < threshold_near_distance || R_dist < threshold_near_distance) {
+  if (L_dist < threshold_near_distance || R_dist < threshold_near_distance) {
         L_pwm = max_pwm;
         R_pwm = max_pwm;
-
-    } else{
+        oponnent_found == true;
+  } else{
     if (L_dist < threshold_detect_distance && R_dist < threshold_detect_distance) {
         L_pwm = max_pwm;
         R_pwm = max_pwm;
-
+        oponnent_found == true;
     } 
     else if (L_dist < threshold_detect_distance) {
         L_pwm = 0 + map(L_dist, threshold_near_distance, threshold_detect_distance, min_pwm, max_pwm);
         R_pwm = max_pwm;//2 + map(L_dist, threshold_near_distance, threshold_detect_distance, min_pwm, max_pwm/2);
-
+        oponnent_found == true;
     } 
     else if (R_dist < threshold_detect_distance) {
         L_pwm = max_pwm;//2 + map(R_dist, threshold_near_distance, threshold_detect_distance, min_pwm, max_pwm/2);
         R_pwm = 0 + map(R_dist, threshold_near_distance, threshold_detect_distance, min_pwm, max_pwm );
-
+        oponnent_found == true;
     } 
     else {
-        L_pwm = max_pwm/2;
-        R_pwm = max_pwm/2;
-        Serial.println("SZUKA!");
+      oponnent_found == false;
+      L_pwm = max_pwm/2;
+      R_pwm = max_pwm/2;
+      if(start_tactic_state == false){
+        L_pwm = min_pwm;
+        R_pwm = max_pwm;
+
+      }else{
+        R_pwm = min_pwm;
+        L_pwm = max_pwm;
+      }
+      Serial.println("SZUKA!");
     }
-    }
+  }
 
     // Ograniczenie wartości PWM
     L_pwm = constrain(L_pwm, min_pwm, max_pwm);
     R_pwm = constrain(R_pwm, min_pwm, max_pwm);
-
-    analogWrite(L_MOT_FORW, L_pwm);
-    analogWrite(R_MOT_FORW, R_pwm);
-
+    //if(oponnent_found){
+      analogWrite(L_MOT_FORW, L_pwm);
+      analogWrite(R_MOT_FORW, R_pwm);
+    //}
     // Wypisanie wartości PWM zamiast sterowania silnikami
     Serial.print("L_dist: "); Serial.print(L_dist);
     Serial.print(" | R_dist: "); Serial.print(R_dist);
@@ -358,9 +386,20 @@ void Robot::updateMotors() {
     Serial.print(" | R_pwm: "); Serial.println(R_pwm);
 }
 
+
+bool Robot::blackOnDojo(){
+
+  if(ground_sensors.white_on_left || ground_sensors.white_on_right){
+    return false;
+  }
+
+}
 Robot Stratos;  // Tworzymy obiekt klasy Robot
 
 void setup() {
+  analogWrite(L_MOT_FORW, 0);
+  analogWrite(R_MOT_FORW, 0);
+  uint16_t time_counter = 0; 
   Serial.begin(115200);  // Inicjalizacja portu szeregowego
   Stratos.tofs.initDistanceSensors();
   ledWaveEffect();
@@ -372,10 +411,27 @@ void setup() {
 
   //tutaj zachowanie po starcie
   digitalWrite(STARTER_LED, HIGH);
-  if(Stratos.get_start_rot_state()){ //skret w odpowiednią strone
-          //skret w prawo
+
+  if(Stratos.get_start_rot_state() == true){ //skret w odpowiednią strone
+    while(!Stratos.isOponnentFound()){
+      analogWrite(L_MOT_FORW, max_pwm);
+      analogWrite(R_MOT_FORW, min_pwm);
+      time_counter++;
+      if(time_counter > START_ROT_TIME){
+        break;
+      }
+      delay(1);
+    }    //skret w prawo
   }else{
-          //skret w lewo
+    while(!Stratos.isOponnentFound()){
+      analogWrite(L_MOT_FORW, min_pwm);
+      analogWrite(R_MOT_FORW, max_pwm);
+      time_counter++;
+      delay(1);
+      if(time_counter > START_ROT_TIME){
+        break;
+      }
+    }   //skret w lewo
   }
 
 
@@ -392,12 +448,15 @@ void loop() {
   //na razie bez taktyk
   
   Stratos.readSensors();
+  
   Stratos.updateMotors();
 
   while(!Stratos.readStarter()){
     //czeka na reset po walces
+    analogWrite(L_MOT_FORW, 0);
+    analogWrite(R_MOT_FORW, 0);
     digitalWrite(STARTER_LED,LOW);
-    delay(300);
+    delay(300); 
     digitalWrite(STARTER_LED,HIGH);
     delay(300);
   }
