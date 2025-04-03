@@ -572,9 +572,10 @@ void loop()
     //druga taktyka
   }*/
   // na razie bez taktyk
+  Stratos.readSensors();
   if (Stratos.blackOnDojo())
   {
-    Stratos.readSensors();
+    
     Stratos.updateMotors();
   }
 
