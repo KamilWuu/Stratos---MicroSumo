@@ -35,17 +35,20 @@
 #define SCL_PIN 14
 
 // VARIABLES
-#define GROUND_THRESHOLD 2000
+#define GROUND_THRESHOLD 3900
 #define START_ROT_TIME 1000
-#define WHITE_LINE_DETECT_ROT_TIME 500
-#define WHITE_LINE_DETECT_BREAKING_TIME 100
-#define AFTER_WHITE_LINE_DETECT_FORWARD_TIME 500
+#define WHITE_LINE_DETECT_ROT_TIME 1000
+#define WHITE_LINE_DETECT_BREAKING_TIME 1500
+#define AFTER_WHITE_LINE_DETECT_FORWARD_TIME 1500
+
+#define SEARCH_ROT_TIME 2000
+#define SEARCH_FORW_TIME 1000
 
 #define min_pwm 0                     // Minimalna wartość PWM, żeby silniki się obracały
-#define max_pwm 200                   // Maksymalna wartość PWM
-#define threshold_detect_distance 100 // Odległość wykrycia przeciwnika (mm)
-#define threshold_near_distance 10    // Bardzo bliska odległość (mm)
-#define search_pwm 200                // PWM w trybie szukania przeciwnika
+#define max_pwm 190                   // Maksymalna wartość PWM
+#define threshold_detect_distance 250 // Odległość wykrycia przeciwnika (mm)
+#define threshold_near_distance 50    // Bardzo bliska odległość (mm)
+#define search_pwm 100                // PWM w trybie szukania przeciwnika
 
 void initGPIO()
 {
@@ -121,9 +124,11 @@ void DistanceSensors::initDistanceSensors()
   rightTOF.setTimeout(500);
   if (!rightTOF.init())
   {
-    Serial.println("Failed to detect and initialize rightTOF!");
+    // Serial.println("Failed to detect and initialize rightTOF!");
     while (1)
     {
+      digitalWrite(LED_3, !digitalRead(LED_3));
+      delay(400);
     }
   }
 
@@ -138,9 +143,11 @@ void DistanceSensors::initDistanceSensors()
   leftTOF.setTimeout(500);
   if (!leftTOF.init())
   {
-    Serial.println("Failed to detect and initialize leftTOF!");
+    // ln("Failed to detect and initialize leftTOF!");
     while (1)
     {
+      digitalWrite(LED_3, !digitalRead(LED_3));
+      delay(400);
     }
   }
 
@@ -155,17 +162,17 @@ void DistanceSensors::readDistances()
 
   if (leftTOF.timeoutOccurred())
   {
-    Serial.println(" TIMEOUT_LEFT_TOF");
+    // ln(" TIMEOUT_LEFT_TOF");
   }
   if (rightTOF.timeoutOccurred())
   {
-    Serial.println(" TIMEOUT_RIGHT_TOF");
+    // ln(" TIMEOUT_RIGHT_TOF");
   }
 
-  /*Serial.print("Left Distance: ");
-  Serial.print(left_distance);
-  Serial.print("Right Distance: ");
-  Serial.println(right_distance);*/
+  /*//("Left Distance: ");
+  //(left_distance);
+  //("Right Distance: ");
+  //ln(right_distance);*/
 }
 
 class GroundSensors
@@ -174,12 +181,12 @@ public:
   GroundSensors();
   ~GroundSensors() {};
   void readGroundSensors();
+  bool white_on_left;
+  bool white_on_right;
 
 private:
   uint16_t left_ground_read;
   uint16_t right_ground_read;
-  bool white_on_left;
-  bool white_on_right;
 };
 
 GroundSensors::GroundSensors()
@@ -213,17 +220,17 @@ void GroundSensors::readGroundSensors()
   }
 
   /*// Wypisanie wyników dla lewego czujnika
-  Serial.print("GROUND_SENSORS: left-> ");
-  Serial.print(left_ground_read);
-  Serial.print("\t white-> ");
-  Serial.print(white_on_left);
-  Serial.print("\t");
+  //("GROUND_SENSORS: left-> ");
+  //(left_ground_read);
+  //("\t white-> ");
+  //(white_on_left);
+  //("\t");
 
   // Wypisanie wyników dla prawego czujnika
-  Serial.print("right-> ");
-  Serial.print(right_ground_read);
-  Serial.print("\t white-> ");
-  Serial.println(white_on_right);  // Zakończenie linii*/
+  //("right-> ");
+  //(right_ground_read);
+  //("\t white-> ");
+  //ln(white_on_right);  // Zakończenie linii*/
 }
 
 class Robot
@@ -243,6 +250,8 @@ public:
   void updateMotors();
   bool isOponnentFound();
   bool blackOnDojo();
+  void whiteLineDetected(uint16_t left_pwm, uint16_t right_pwm);
+  void searchOponnent();
   DistanceSensors tofs;         // Obiekt czujników odległości
   GroundSensors ground_sensors; // Obiekt czujników podłoża
 private:
@@ -262,7 +271,7 @@ Robot::Robot()
 void Robot::readSensors()
 {
   tofs.readDistances();
-  ground_sensors.readGroundSensors();
+  // ground_sensors.readGroundSensors();
 }
 
 void Robot::checkButtonClicks()
@@ -356,10 +365,14 @@ bool Robot::isOponnentFound()
   uint16_t R_dist = tofs.getRightDistance();
   if (L_dist < threshold_detect_distance || R_dist < threshold_detect_distance)
   {
+    digitalWrite(LED_3, HIGH);
     return true;
   }
   else
   {
+    analogWrite(LED_1, 0);
+    analogWrite(LED_2, 0);
+    digitalWrite(LED_3, 0);
     return false;
   }
 }
@@ -367,7 +380,8 @@ bool Robot::isOponnentFound()
 void Robot::updateMotors()
 {
   // readSensors();
-  bool oponnent_found = false;
+  // readSensors();
+
   uint16_t L_pwm = 0;
   uint16_t R_pwm = 0;
   uint16_t L_dist = tofs.getLeftDistance();
@@ -376,7 +390,6 @@ void Robot::updateMotors()
   {
     L_pwm = max_pwm;
     R_pwm = max_pwm;
-    oponnent_found == true;
   }
   else
   {
@@ -384,36 +397,16 @@ void Robot::updateMotors()
     {
       L_pwm = max_pwm;
       R_pwm = max_pwm;
-      oponnent_found == true;
     }
     else if (L_dist < threshold_detect_distance)
     {
       L_pwm = 0 + map(L_dist, threshold_near_distance, threshold_detect_distance, min_pwm, max_pwm);
       R_pwm = max_pwm; // 2 + map(L_dist, threshold_near_distance, threshold_detect_distance, min_pwm, max_pwm/2);
-      oponnent_found == true;
     }
     else if (R_dist < threshold_detect_distance)
     {
       L_pwm = max_pwm; // 2 + map(R_dist, threshold_near_distance, threshold_detect_distance, min_pwm, max_pwm/2);
       R_pwm = 0 + map(R_dist, threshold_near_distance, threshold_detect_distance, min_pwm, max_pwm);
-      oponnent_found == true;
-    }
-    else
-    {
-      oponnent_found == false;
-      L_pwm = max_pwm / 2;
-      R_pwm = max_pwm / 2;
-      if (start_tactic_state == false)
-      {
-        L_pwm = min_pwm;
-        R_pwm = max_pwm;
-      }
-      else
-      {
-        R_pwm = min_pwm;
-        L_pwm = max_pwm;
-      }
-      Serial.println("SZUKA!");
     }
   }
 
@@ -423,95 +416,114 @@ void Robot::updateMotors()
   // if(oponnent_found){
   analogWrite(L_MOT_FORW, L_pwm);
   analogWrite(R_MOT_FORW, R_pwm);
-  //}
-  // Wypisanie wartości PWM zamiast sterowania silnikami
-  Serial.print("L_dist: ");
-  Serial.print(L_dist);
-  Serial.print(" | R_dist: ");
-  Serial.print(R_dist);
-  Serial.print(" || L_pwm: ");
-  Serial.print(L_pwm);
-  Serial.print(" | R_pwm: ");
-  Serial.println(R_pwm);
+
+  analogWrite(LED_1, R_pwm);
+  analogWrite(LED_2, L_pwm);
+}
+
+void Robot::whiteLineDetected(uint16_t left_pwm, uint16_t right_pwm)
+{
+  uint16_t time_counter = 0;
+  analogWrite(L_MOT_FORW, 0);
+  analogWrite(R_MOT_FORW, 0);
+  analogWrite(L_MOT_BACK, max_pwm);
+  analogWrite(R_MOT_BACK, max_pwm);
+  while (!isOponnentFound())
+  {
+    if (time_counter > WHITE_LINE_DETECT_BREAKING_TIME)
+    {
+      break;
+    }
+    time_counter++;
+    delay(1);
+  }
+  analogWrite(L_MOT_BACK, 0);
+  analogWrite(R_MOT_BACK, 0);
+  time_counter = 0;
+
+  analogWrite(L_MOT_FORW, left_pwm);
+  analogWrite(R_MOT_FORW, right_pwm);
+  while (!isOponnentFound())
+  {
+    if (time_counter > WHITE_LINE_DETECT_ROT_TIME)
+    {
+      break;
+    }
+
+    time_counter++;
+    delay(1);
+  }
+
+  time_counter = 0;
+  analogWrite(L_MOT_FORW, max_pwm);
+  analogWrite(R_MOT_FORW, max_pwm);
+  while (!isOponnentFound())
+  {
+    if (time_counter > AFTER_WHITE_LINE_DETECT_FORWARD_TIME)
+    {
+      break;
+    }
+    if (ground_sensors.white_on_left || ground_sensors.white_on_right)
+    {
+      break;
+    }
+    time_counter++;
+    delay(1);
+  }
 }
 
 bool Robot::blackOnDojo()
 {
-
-  if (!ground_sensors.white_on_left && !ground_sensors.white_on_right)
+  if (analogRead(LEFT_GROUND_SENSOR) < GROUND_THRESHOLD)
   {
-    return true;
+    whiteLineDetected(max_pwm, min_pwm);
+    return false;
+  }
+  else if (analogRead(RIGHT_GROUND_SENSOR) < GROUND_THRESHOLD)
+  {
+    whiteLineDetected(min_pwm, max_pwm);
+    return false;
   }
   else
   {
-    uint16_t time_counter = 0;
-    analogWrite(L_MOT_FORW, 0);
-    analogWrite(R_MOT_FORW, 0);
-    analogWrite(L_MOT_BACK, max_pwm);
-    analogWrite(R_MOT_BACK, max_pwm);
-    while (isOponnentFound())
-    {
-      if (time_counter > WHITE_LINE_DETECT_BREAKING_TIME)
-      {
-        break;
-      }
-      time_counter++;
-      delay(1);
-    }
-    analogWrite(L_MOT_BACK, 0);
-    analogWrite(R_MOT_BACK, 0);
-    time_counter = 0;
-
-    if (ground_sensors.white_on_left)
-    {
-      analogWrite(L_MOT_FORW, max_pwm);
-      analogWrite(R_MOT_FORW, min_pwm);
-      while (!isOponnentFound())
-      {
-        if (time_counter > WHITE_LINE_DETECT_ROT_TIME)
-        {
-          break;
-        }
-
-        time_counter++;
-        delay(1);
-      }
-    }
-    else
-    {
-      analogWrite(L_MOT_FORW, min_pwm);
-      analogWrite(R_MOT_FORW, max_pwm);
-      while (!isOponnentFound())
-      {
-        if (time_counter > WHITE_LINE_DETECT_ROT_TIME)
-        {
-          break;
-        }
-
-        time_counter++;
-        delay(1);
-      }
-    }
-    time_counter = 0;
-    analogWrite(L_MOT_FORW, max_pwm);
-    analogWrite(R_MOT_FORW, max_pwm);
-    while (!isOponnentFound())
-    {
-      if (time_counter > AFTER_WHITE_LINE_DETECT_FORWARD_TIME)
-      {
-        break;
-      }
-      if (ground_sensors.white_on_left || ground_sensors.white_on_right)
-      {
-        break;
-      }
-      time_counter++;
-      delay(1);
-    }
-
-    return false;
+    return true;
   }
 }
+
+void Robot::searchOponnent()
+{
+  uint16_t time_counter = 0;
+
+  while (!isOponnentFound() && blackOnDojo() && readStarter())
+  {
+    analogWrite(L_MOT_FORW, search_pwm);
+    analogWrite(R_MOT_FORW, min_pwm);
+    while (!isOponnentFound() && blackOnDojo() && readStarter())
+    {
+      if (time_counter > SEARCH_ROT_TIME)
+      {
+        break;
+      }
+      time_counter++;
+      delay(1);
+    }
+    time_counter = 0;
+    analogWrite(L_MOT_FORW, search_pwm);
+    analogWrite(R_MOT_FORW, search_pwm);
+    while (!isOponnentFound() && blackOnDojo() && readStarter())
+    {
+      if (time_counter > SEARCH_FORW_TIME)
+      {
+        break;
+      }
+      time_counter++;
+      delay(1);
+    }
+  }
+  // analogWrite(L_MOT_FORW, 0);
+  // analogWrite(R_MOT_FORW, 0);
+}
+
 Robot Stratos; // Tworzymy obiekt klasy Robot
 
 void setup()
@@ -572,11 +584,17 @@ void loop()
     //druga taktyka
   }*/
   // na razie bez taktyk
-  Stratos.readSensors();
+  // Stratos.readSensors();
   if (Stratos.blackOnDojo())
   {
-    
-    Stratos.updateMotors();
+    if (Stratos.isOponnentFound())
+    {
+      Stratos.updateMotors();
+    }
+    else
+    {
+      Stratos.searchOponnent();
+    }
   }
 
   while (!Stratos.readStarter())
