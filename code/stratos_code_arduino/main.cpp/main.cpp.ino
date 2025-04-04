@@ -36,19 +36,19 @@
 
 // VARIABLES
 #define GROUND_THRESHOLD 3900
-#define START_ROT_TIME 1000
-#define WHITE_LINE_DETECT_ROT_TIME 1000
-#define WHITE_LINE_DETECT_BREAKING_TIME 1500
-#define AFTER_WHITE_LINE_DETECT_FORWARD_TIME 1500
+#define START_ROT_TIME 2000
+#define WHITE_LINE_DETECT_ROT_TIME 700
+#define WHITE_LINE_DETECT_BREAKING_TIME 500
+#define AFTER_WHITE_LINE_DETECT_FORWARD_TIME 800
 
-#define SEARCH_ROT_TIME 2000
+#define SEARCH_ROT_TIME 2000 
 #define SEARCH_FORW_TIME 1000
 
 #define min_pwm 0                     // Minimalna wartość PWM, żeby silniki się obracały
-#define max_pwm 190                   // Maksymalna wartość PWM
-#define threshold_detect_distance 250 // Odległość wykrycia przeciwnika (mm)
-#define threshold_near_distance 50    // Bardzo bliska odległość (mm)
-#define search_pwm 100                // PWM w trybie szukania przeciwnika
+#define max_pwm 255                   // Maksymalna wartość PWM
+#define threshold_detect_distance 255 // Odległość wykrycia przeciwnika (mm)
+#define threshold_near_distance 20   // Bardzo bliska odległość (mm)
+#define search_pwm 125                // PWM w trybie szukania przeciwnika
 
 void initGPIO()
 {
@@ -423,54 +423,48 @@ void Robot::updateMotors()
 
 void Robot::whiteLineDetected(uint16_t left_pwm, uint16_t right_pwm)
 {
-  uint16_t time_counter = 0;
-  analogWrite(L_MOT_FORW, 0);
-  analogWrite(R_MOT_FORW, 0);
-  analogWrite(L_MOT_BACK, max_pwm);
-  analogWrite(R_MOT_BACK, max_pwm);
-  while (!isOponnentFound())
-  {
-    if (time_counter > WHITE_LINE_DETECT_BREAKING_TIME)
-    {
-      break;
-    }
-    time_counter++;
-    delay(1);
-  }
-  analogWrite(L_MOT_BACK, 0);
-  analogWrite(R_MOT_BACK, 0);
-  time_counter = 0;
+    uint32_t phaseStartTime = millis();
+    bool reversing = true;
+    bool rotating = false;
+    bool movingForward = false;
 
-  analogWrite(L_MOT_FORW, left_pwm);
-  analogWrite(R_MOT_FORW, right_pwm);
-  while (!isOponnentFound())
-  {
-    if (time_counter > WHITE_LINE_DETECT_ROT_TIME)
-    {
-      break;
-    }
+    analogWrite(L_MOT_FORW, 0);
+    analogWrite(R_MOT_FORW, 0);
+    analogWrite(L_MOT_BACK, max_pwm);
+    analogWrite(R_MOT_BACK, max_pwm);
 
-    time_counter++;
-    delay(1);
-  }
-
-  time_counter = 0;
-  analogWrite(L_MOT_FORW, max_pwm);
-  analogWrite(R_MOT_FORW, max_pwm);
-  while (!isOponnentFound())
-  {
-    if (time_counter > AFTER_WHITE_LINE_DETECT_FORWARD_TIME)
+    while (!isOponnentFound())
     {
-      break;
-    }
-    if (ground_sensors.white_on_left || ground_sensors.white_on_right)
-    {
-      break;
-    }
-    time_counter++;
-    delay(1);
+        if (reversing && millis() - phaseStartTime > WHITE_LINE_DETECT_BREAKING_TIME)
+        {
+            reversing = false;
+            rotating = true;
+            phaseStartTime = millis();
+            analogWrite(L_MOT_BACK, 0);
+            analogWrite(R_MOT_BACK, 0);
+            analogWrite(L_MOT_FORW, left_pwm);
+            analogWrite(R_MOT_FORW, right_pwm);
+        }
+        else if (rotating && millis() - phaseStartTime > WHITE_LINE_DETECT_ROT_TIME)
+        {
+            rotating = false;
+            movingForward = true;
+            phaseStartTime = millis();
+            analogWrite(L_MOT_FORW, max_pwm);
+            analogWrite(R_MOT_FORW, max_pwm);
+        }
+        else if (movingForward && (millis() - phaseStartTime > AFTER_WHITE_LINE_DETECT_FORWARD_TIME || ground_sensors.white_on_left || ground_sensors.white_on_right))
+        {
+            break;
+        }
   }
+  
+            analogWrite(L_MOT_BACK, 0);
+            analogWrite(R_MOT_BACK, 0);
+            analogWrite(L_MOT_FORW, max_pwm);
+            analogWrite(R_MOT_FORW, max_pwm);
 }
+
 
 bool Robot::blackOnDojo()
 {
@@ -492,87 +486,76 @@ bool Robot::blackOnDojo()
 
 void Robot::searchOponnent()
 {
-  uint16_t time_counter = 0;
+    uint32_t startTime = millis();
+    uint32_t phaseStartTime = millis();
+    bool rotating = true;
 
-  while (!isOponnentFound() && blackOnDojo() && readStarter())
-  {
-    analogWrite(L_MOT_FORW, search_pwm);
-    analogWrite(R_MOT_FORW, min_pwm);
     while (!isOponnentFound() && blackOnDojo() && readStarter())
     {
-      if (time_counter > SEARCH_ROT_TIME)
-      {
-        break;
-      }
-      time_counter++;
-      delay(1);
+        if (rotating)
+        {
+            analogWrite(L_MOT_FORW, search_pwm);
+            analogWrite(R_MOT_FORW, min_pwm);
+            if (millis() - phaseStartTime > SEARCH_ROT_TIME)
+            {
+                rotating = false;
+                phaseStartTime = millis();
+            }
+        }
+        else
+        {
+            analogWrite(L_MOT_FORW, search_pwm);
+            analogWrite(R_MOT_FORW, search_pwm);
+            if (millis() - phaseStartTime > SEARCH_FORW_TIME)
+            {
+                rotating = true;
+                phaseStartTime = millis();
+            }
+        }
     }
-    time_counter = 0;
-    analogWrite(L_MOT_FORW, search_pwm);
-    analogWrite(R_MOT_FORW, search_pwm);
-    while (!isOponnentFound() && blackOnDojo() && readStarter())
-    {
-      if (time_counter > SEARCH_FORW_TIME)
-      {
-        break;
-      }
-      time_counter++;
-      delay(1);
-    }
-  }
-  // analogWrite(L_MOT_FORW, 0);
-  // analogWrite(R_MOT_FORW, 0);
+    // analogWrite(L_MOT_FORW, 0);
+    // analogWrite(R_MOT_FORW, 0);
 }
 
 Robot Stratos; // Tworzymy obiekt klasy Robot
 
 void setup()
 {
-  analogWrite(L_MOT_FORW, 0);
-  analogWrite(R_MOT_FORW, 0);
-  uint16_t time_counter = 0;
-  Serial.begin(115200); // Inicjalizacja portu szeregowego
-  Stratos.tofs.initDistanceSensors();
-  ledWaveEffect();
+    analogWrite(L_MOT_FORW, 0);
+    analogWrite(R_MOT_FORW, 0);
+    Serial.begin(115200);
+    Stratos.tofs.initDistanceSensors();
+    ledWaveEffect();
 
-  while (!Stratos.readStarter())
-  {
-    // czeka na start ze startera
-    Stratos.checkButtonClicks();
-  }
-
-  // tutaj zachowanie po starcie
-  digitalWrite(STARTER_LED, HIGH);
-
-  if (Stratos.get_start_rot_state() == true)
-  { // skret w odpowiednią strone
-    while (!Stratos.isOponnentFound())
+    while (!Stratos.readStarter())
     {
-      analogWrite(L_MOT_FORW, max_pwm);
-      analogWrite(R_MOT_FORW, min_pwm);
-      time_counter++;
-      if (time_counter > START_ROT_TIME)
-      {
-        break;
-      }
-      delay(1);
-    } // skret w prawo
-  }
-  else
-  {
-    while (!Stratos.isOponnentFound())
+        Stratos.checkButtonClicks();
+    }
+
+    digitalWrite(STARTER_LED, HIGH);
+    uint32_t phaseStartTime = millis();
+    bool rotating = true;
+
+    if (Stratos.get_start_rot_state())
     {
-      analogWrite(L_MOT_FORW, min_pwm);
-      analogWrite(R_MOT_FORW, max_pwm);
-      time_counter++;
-      delay(1);
-      if (time_counter > START_ROT_TIME)
-      {
-        break;
-      }
-    } // skret w lewo
-  }
+        analogWrite(L_MOT_FORW, max_pwm);
+        analogWrite(R_MOT_FORW, min_pwm);
+    }
+    else
+    {
+        analogWrite(L_MOT_FORW, min_pwm);
+        analogWrite(R_MOT_FORW, max_pwm);
+    }
+
+    while (!Stratos.isOponnentFound() && rotating)
+    {
+        if (millis() - phaseStartTime > START_ROT_TIME)
+        {
+            rotating = false;
+        }
+    }
 }
+
 
 void loop()
 {
